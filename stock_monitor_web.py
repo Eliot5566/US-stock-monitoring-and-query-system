@@ -41,7 +41,7 @@ TEMPLATE = '''
 </head>
 <body>
     <h2>美股監控查詢</h2>
-    <p>台北 {{ now_tw.strftime('%Y-%m-%d %H:%M') }} | {{ title }}</p>
+    <p>台北 {{ now_tw }} | {{ title }}</p>
     <table>
         <thead>
             <tr>
