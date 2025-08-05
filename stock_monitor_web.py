@@ -48,13 +48,16 @@ TEMPLATE = '''
 
 @app.route('/')
 def index():
-    df_raw, lost = gather_all()
-    if df_raw.empty:
-        return '<h3>⚠️ 全部標的下載失敗，請稍後重試</h3>'
-    df, A, B, title, now_tw = apply_stage(df_raw.sort_values("RSI14"))
-    cols = ["股票", A, B, "變動%", "昨日收盤", "今日漲跌幅%", "RSI14", "ATR", "MA5", "MA20", "MA60"]
-    data = df[cols].to_dict(orient='records')
-    return render_template_string(TEMPLATE, data=data, cols=cols, title=title, now_tw=now_tw, lost=lost)
+    try:
+        df = pd.read_pickle("data_latest.pkl")
+        with open("meta_latest.txt", encoding="utf-8") as f:
+            A, B, title, now_tw = f.read().split("|")
+        cols = ["股票", A, B, "變動%", "昨日收盤", "今日漲跌幅%", "RSI14", "ATR", "MA5", "MA20", "MA60"]
+        data = df[cols].to_dict(orient='records')
+        lost = []
+        return render_template_string(TEMPLATE, data=data, cols=cols, title=title, now_tw=now_tw, lost=lost)
+    except Exception as e:
+        return f"<h3>⚠️ 資料讀取失敗：{e}</h3>"
 
 if __name__ == '__main__':
     import os
