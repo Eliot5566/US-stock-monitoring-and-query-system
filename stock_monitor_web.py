@@ -1,8 +1,29 @@
 import pandas as pd
+
+import threading
+import time
+import pandas as pd
 from finalSt import gather_all, apply_stage
 from flask import Flask, render_template_string
 
 app = Flask(__name__)
+
+# 定時自動抓取快取
+def fetch_and_save():
+    while True:
+        try:
+            df_raw, lost = gather_all()
+            if not df_raw.empty:
+                df, A, B, title, now_tw = apply_stage(df_raw.sort_values("RSI14"))
+                df.to_pickle("data_latest.pkl")
+                with open("meta_latest.txt", "w", encoding="utf-8") as f:
+                    f.write(f"{A}|{B}|{title}|{now_tw}")
+        except Exception as e:
+            print("定時抓取失敗：", e)
+        time.sleep(300)  # 每5分鐘抓一次
+
+# 啟動定時任務（在 web 啟動時自動執行）
+threading.Thread(target=fetch_and_save, daemon=True).start()
 
 TEMPLATE = '''
 <!DOCTYPE html>
@@ -57,7 +78,7 @@ def index():
         lost = []
         return render_template_string(TEMPLATE, data=data, cols=cols, title=title, now_tw=now_tw, lost=lost)
     except Exception as e:
-        return f"<h3>⚠️ 資料讀取失敗：{e}</h3>"
+        return f"<h3>⚠️ 資料讀取失敗：{e}<br>請稍候再試，或等待後台自動更新。</h3>"
 
 if __name__ == '__main__':
     import os
