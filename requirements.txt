@@ -5,3 +5,4 @@ tabulate
 tenacity
 matplotlib
 pandas_ta
+setuptools
