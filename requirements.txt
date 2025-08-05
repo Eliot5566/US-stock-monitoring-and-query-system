@@ -6,3 +6,4 @@ tenacity
 matplotlib
 pandas_ta
 setuptools
+numpy==1.26.4
