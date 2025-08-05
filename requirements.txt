@@ -1,0 +1,7 @@
+flask
+pandas
+yfinance
+tabulate
+tenacity
+matplotlib
+pandas_ta
